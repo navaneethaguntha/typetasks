@@ -43,4 +43,4 @@ function advanceTask(tasks: Task[], id: number): Task[] {
     if (t.status === "in-progress") return { ...t, status: "done" };
     return t;
   });
-}
+} 
