@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  // 1. TaskStatus Literal Union
 type TaskStatus = "todo" | "in-progress" | "done";
 
@@ -44,3 +45,83 @@ function advanceTask(tasks: Task[], id: number): Task[] {
     return t;
   });
 } 
+=======
+
+// 1. Define allowed task statuses
+type TaskStatus = "todo" | "in-progress" | "done";
+
+
+// 2. Define the Task interface
+interface Task {
+    id: number;
+    title: string;
+    status: TaskStatus;
+}
+
+
+// 3. Generate unique task IDs
+let nextId = 1;
+
+
+// 4. Add a new task
+function addTask(tasks: Task[], title: string): Task[] {
+
+    const maxId = tasks.reduce(
+        (max, task) => Math.max(max, task.id),
+        0
+    );
+
+    nextId = Math.max(nextId, maxId + 1);
+
+    const newTask: Task = {
+        id: nextId++,
+        title: title,
+        status: "todo"
+    };
+
+    return [...tasks, newTask];
+}
+
+
+// 5. Complete a task using its ID
+function completeTask(tasks: Task[], id: number): Task[] {
+
+    return tasks.map(task =>
+        task.id === id
+            ? { ...task, status: "done" }
+            : task
+    );
+}
+
+
+// 6. Filter tasks according to status
+function filterByStatus(
+    tasks: Task[],
+    status: TaskStatus
+): Task[] {
+
+    return tasks.filter(task => task.status === status);
+}
+
+
+// 7. Extra operation: Advance task status
+function advanceTask(tasks: Task[], id: number): Task[] {
+
+    return tasks.map(task => {
+
+        if (task.id !== id) {
+            return task;
+        }
+
+        if (task.status === "todo") {
+            return { ...task, status: "in-progress" };
+        }
+
+        if (task.status === "in-progress") {
+            return { ...task, status: "done" };
+        }
+
+        return task;
+    });
+}
+>>>>>>> fdaf21c (Complete TypeTasks Part 1 model)
