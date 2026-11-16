@@ -1,4 +1,4 @@
-import { addTask, completeTask, filterByStatus, } from "./model.js";
+import { addTask, advanceTask, deleteTask, filterByStatus, } from "./model.js";
 let tasks = [];
 let currentFilter = "all";
 const titleInput = document.getElementById("title");
@@ -13,30 +13,14 @@ addBtn.onclick = () => {
     tasks = addTask(tasks, title);
     if (statusSelect) {
         const chosenStatus = statusSelect.value;
-        if (chosenStatus !== "todo") {
-            const lastTask = tasks[tasks.length - 1];
+        const lastTask = tasks[tasks.length - 1];
+        if (chosenStatus !== "todo" && lastTask) {
             tasks = tasks.map((t) => t.id === lastTask.id ? { ...t, status: chosenStatus } : t);
         }
     }
     titleInput.value = "";
     render();
 };
-function advanceTask(id) {
-    const target = tasks.find((t) => t.id === id);
-    if (!target)
-        return;
-    if (target.status === "todo") {
-        tasks = tasks.map((t) => t.id === id ? { ...t, status: "in-progress" } : t);
-    }
-    else if (target.status === "in-progress") {
-        tasks = completeTask(tasks, id);
-    }
-    render();
-}
-function deleteTask(id) {
-    tasks = tasks.filter((t) => t.id !== id);
-    render();
-}
 function renderChips() {
     const filters = ["all", "todo", "in-progress", "done"];
     chipsEl.innerHTML = "";
@@ -63,10 +47,16 @@ function render() {
         const advBtn = document.createElement("button");
         advBtn.textContent = task.status === "done" ? "✓ done" : "advance →";
         advBtn.disabled = task.status === "done";
-        advBtn.onclick = () => advanceTask(task.id);
+        advBtn.onclick = () => {
+            tasks = advanceTask(tasks, task.id);
+            render();
+        };
         const delBtn = document.createElement("button");
         delBtn.textContent = "✕";
-        delBtn.onclick = () => deleteTask(task.id);
+        delBtn.onclick = () => {
+            tasks = deleteTask(tasks, task.id);
+            render();
+        };
         li.append(span, advBtn, delBtn);
         listEl.appendChild(li);
     });
