@@ -3,29 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Task Board</title>
+  <title>TaskFlow — Type-Safe Task Manager</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="wrap">
-    <h1>My Task Board</h1>
+  <main class="container">
+    <header class="header">
+      <h1>TaskFlow</h1>
+      <p class="subtitle">Type-safe workflow tracker powered by TypeScript</p>
+      <p id="stats" class="stats">0 todo · 0 in-progress · 0 done</p>
+    </header>
 
-
-    <div class="addrow">
-      <input id="title" type="text" placeholder="Add a task…" />
-      <select id="status">
-        <option value="todo">todo</option>
-        <option value="in-progress">in-progress</option>
-        <option value="done">done</option>
+    <section class="input-bar">
+      <input
+        id="title"
+        type="text"
+        placeholder="What needs to be done?"
+        aria-label="Task title"
+      />
+      <select id="status" aria-label="Initial status">
+        <option value="todo">To Do</option>
+        <option value="in-progress">In Progress</option>
+        <option value="done">Done</option>
       </select>
-      <button id="add" type="button">Add</button>
-    </div>
+      <button id="add" type="button">Add Task</button>
+    </section>
 
+    <nav id="chips" class="filters" aria-label="Filter tasks"></nav>
 
-    <div id="chips"></div>
-    <ul id="list"></ul>
-  </div>
-
+    <ul id="list" class="task-list"></ul>
+  </main>
 
   <script type="module" src="app.js"></script>
 </body>

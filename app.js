@@ -1,64 +1,109 @@
 import { addTask, advanceTask, deleteTask, filterByStatus, } from "./model.js";
-let tasks = [];
-let currentFilter = "all";
+let tasks = [
+    { id: "1", title: "Define typed Task model", status: "done" },
+    { id: "2", title: "Wire DOM controls in app.ts", status: "in-progress" },
+    { id: "3", title: "Deploy TaskFlow live URL", status: "todo" },
+];
+let activeFilter = "all";
 const titleInput = document.getElementById("title");
 const statusSelect = document.getElementById("status");
 const addBtn = document.getElementById("add");
-const chipsEl = document.getElementById("chips");
+const chipsContainer = document.getElementById("chips");
 const listEl = document.getElementById("list");
-addBtn.onclick = () => {
-    const title = titleInput.value.trim();
-    if (!title)
-        return;
-    tasks = addTask(tasks, title);
-    if (statusSelect) {
-        const chosenStatus = statusSelect.value;
-        const lastTask = tasks[tasks.length - 1];
-        if (chosenStatus !== "todo" && lastTask) {
-            tasks = tasks.map((t) => t.id === lastTask.id ? { ...t, status: chosenStatus } : t);
-        }
-    }
-    titleInput.value = "";
-    render();
-};
-function renderChips() {
-    const filters = ["all", "todo", "in-progress", "done"];
-    chipsEl.innerHTML = "";
-    filters.forEach((f) => {
+const statsEl = document.getElementById("stats");
+const FILTER_OPTIONS = [
+    "all",
+    "todo",
+    "in-progress",
+    "done",
+];
+function renderFilters() {
+    chipsContainer.innerHTML = "";
+    FILTER_OPTIONS.forEach((option) => {
         const btn = document.createElement("button");
-        btn.textContent = f;
-        btn.className = currentFilter === f ? "chip active" : "chip";
-        btn.onclick = () => {
-            currentFilter = f;
+        btn.type = "button";
+        btn.className = option === activeFilter ? "chip active" : "chip";
+        btn.textContent = option;
+        btn.addEventListener("click", () => {
+            activeFilter = option;
             render();
-        };
-        chipsEl.appendChild(btn);
+        });
+        chipsContainer.appendChild(btn);
     });
 }
-function render() {
-    renderChips();
-    const visible = currentFilter === "all" ? tasks : filterByStatus(tasks, currentFilter);
+function renderStats() {
+    const todoCount = filterByStatus(tasks, "todo").length;
+    const inProgressCount = filterByStatus(tasks, "in-progress").length;
+    const doneCount = filterByStatus(tasks, "done").length;
+    statsEl.textContent = `${todoCount} todo · ${inProgressCount} in-progress · ${doneCount} done`;
+}
+function renderList() {
     listEl.innerHTML = "";
-    visible.forEach((task) => {
+    const visibleTasks = filterByStatus(tasks, activeFilter);
+    if (visibleTasks.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-state";
+        empty.textContent = "No tasks in this view.";
+        listEl.appendChild(empty);
+        return;
+    }
+    visibleTasks.forEach((task) => {
         const li = document.createElement("li");
-        li.className = "task";
-        const span = document.createElement("span");
-        span.textContent = `${task.title} [${task.status.toUpperCase()}]`;
-        const advBtn = document.createElement("button");
-        advBtn.textContent = task.status === "done" ? "✓ done" : "advance →";
-        advBtn.disabled = task.status === "done";
-        advBtn.onclick = () => {
+        li.className = "task-item";
+        const titleSpan = document.createElement("span");
+        titleSpan.className =
+            task.status === "done" ? "task-title done" : "task-title";
+        titleSpan.textContent = task.title;
+        const badge = document.createElement("span");
+        badge.className = `badge ${task.status}`;
+        badge.textContent = task.status;
+        const actions = document.createElement("div");
+        actions.className = "actions";
+        const advanceBtn = document.createElement("button");
+        advanceBtn.type = "button";
+        advanceBtn.className = "btn-advance";
+        advanceBtn.textContent =
+            task.status === "done" ? "✓ Done" : "Advance →";
+        advanceBtn.disabled = task.status === "done";
+        advanceBtn.addEventListener("click", () => {
             tasks = advanceTask(tasks, task.id);
             render();
-        };
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "✕";
-        delBtn.onclick = () => {
+        });
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "btn-delete";
+        deleteBtn.textContent = "✕";
+        deleteBtn.setAttribute("aria-label", `Delete ${task.title}`);
+        deleteBtn.addEventListener("click", () => {
             tasks = deleteTask(tasks, task.id);
             render();
-        };
-        li.append(span, advBtn, delBtn);
+        });
+        actions.appendChild(advanceBtn);
+        actions.appendChild(deleteBtn);
+        li.appendChild(titleSpan);
+        li.appendChild(badge);
+        li.appendChild(actions);
         listEl.appendChild(li);
     });
 }
+function render() {
+    renderStats();
+    renderFilters();
+    renderList();
+}
+function handleAddTask() {
+    const title = titleInput.value.trim();
+    if (!title)
+        return;
+    const selectedStatus = statusSelect.value;
+    tasks = addTask(tasks, title, selectedStatus);
+    titleInput.value = "";
+    render();
+}
+addBtn.addEventListener("click", handleAddTask);
+titleInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        handleAddTask();
+    }
+});
 render();
