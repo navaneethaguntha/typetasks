@@ -1,17 +1,13 @@
-let nextId = 1;
-export function addTask(tasks, title) {
+export function addTask(tasks, title, status = "todo") {
+    const cleanTitle = title.trim();
+    if (!cleanTitle)
+        return tasks;
     const newTask = {
-        id: nextId++,
-        title,
-        status: "todo",
+        id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+        title: cleanTitle,
+        status,
     };
     return [...tasks, newTask];
-}
-export function completeTask(tasks, id) {
-    return tasks.map((task) => task.id === id ? { ...task, status: "done" } : task);
-}
-export function filterByStatus(tasks, status) {
-    return tasks.filter((task) => task.status === status);
 }
 export function advanceTask(tasks, id) {
     return tasks.map((task) => {
@@ -24,6 +20,8 @@ export function advanceTask(tasks, id) {
 export function deleteTask(tasks, id) {
     return tasks.filter((task) => task.id !== id);
 }
-export function countByStatus(tasks, status) {
-    return tasks.filter((task) => task.status === status).length;
+export function filterByStatus(tasks, status) {
+    if (status === "all")
+        return tasks;
+    return tasks.filter((task) => task.status === status);
 }

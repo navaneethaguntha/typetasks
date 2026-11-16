@@ -1,40 +1,30 @@
 export type TaskStatus = "todo" | "in-progress" | "done";
 
-
 export interface Task {
-  id: number;
+  id: string;
   title: string;
   status: TaskStatus;
 }
 
+export function addTask(
+  tasks: Task[],
+  title: string,
+  status: TaskStatus = "todo"
+): Task[] {
+  const cleanTitle = title.trim();
+  if (!cleanTitle) return tasks;
 
-let nextId = 1;
-
-
-export function addTask(tasks: Task[], title: string): Task[] {
   const newTask: Task = {
-    id: nextId++,
-    title,
-    status: "todo",
+    id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+    title: cleanTitle,
+    status,
   };
+
   return [...tasks, newTask];
 }
 
-
-export function completeTask(tasks: Task[], id: number): Task[] {
-  return tasks.map((task) =>
-    task.id === id ? { ...task, status: "done" } : task
-  );
-}
-
-
-export function filterByStatus(tasks: Task[], status: TaskStatus): Task[] {
-  return tasks.filter((task) => task.status === status);
-}
-
-
-export function advanceTask(tasks: Task[], id: number): Task[] {
-  return tasks.map((task) => {
+export function advanceTask(tasks: Task[], id: string): Task[] {
+  return tasks.map((task): Task => {
     if (task.id !== id) return task;
     const nextStatus: TaskStatus =
       task.status === "todo" ? "in-progress" : "done";
@@ -42,12 +32,14 @@ export function advanceTask(tasks: Task[], id: number): Task[] {
   });
 }
 
-
-export function deleteTask(tasks: Task[], id: number): Task[] {
+export function deleteTask(tasks: Task[], id: string): Task[] {
   return tasks.filter((task) => task.id !== id);
 }
 
-
-export function countByStatus(tasks: Task[], status: TaskStatus): number {
-  return tasks.filter((task) => task.status === status).length;
+export function filterByStatus(
+  tasks: Task[],
+  status: "all" | TaskStatus
+): Task[] {
+  if (status === "all") return tasks;
+  return tasks.filter((task) => task.status === status);
 }
