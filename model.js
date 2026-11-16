@@ -1,29 +1,19 @@
 let nextId = 1;
 export function addTask(tasks, title) {
-    const newTask = {
-        id: nextId++,
-        title,
-        status: "todo",
-    };
+    const newTask = { id: nextId++, title, status: "todo" };
     return [...tasks, newTask];
 }
-export function completeTask(tasks, id) {
-    return tasks.map((task) => task.id === id ? { ...task, status: "done" } : task);
-}
-export function filterByStatus(tasks, status) {
-    return tasks.filter((task) => task.status === status);
-}
 export function advanceTask(tasks, id) {
-    return tasks.map((task) => {
-        if (task.id !== id)
-            return task;
-        const nextStatus = task.status === "todo" ? "in-progress" : "done";
-        return { ...task, status: nextStatus };
+    return tasks.map((t) => {
+        if (t.id !== id)
+            return t;
+        const next = t.status === "todo" ? "in-progress" : "done";
+        return { ...t, status: next };
     });
 }
-export function deleteTask(tasks, id) {
-    return tasks.filter((task) => task.id !== id);
+export function completeTask(tasks, id) {
+    return tasks.map((t) => (t.id === id ? { ...t, status: "done" } : t));
 }
-export function countByStatus(tasks, status) {
-    return tasks.filter((task) => task.status === status).length;
+export function filterByStatus(tasks, status) {
+    return tasks.filter((t) => t.status === status);
 }
